@@ -12,9 +12,13 @@ class TableController: UITableViewController{
 
     var toDoArray = ["1","2","3"]
     
+    let defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        if let itemTest = defaults.array(forKey: "ToDoListArray") as? [String]{
+            toDoArray = itemTest
+        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -50,6 +54,7 @@ class TableController: UITableViewController{
         let action = UIAlertAction(title: "Add item", style: .default) { (action) in
             if alert.textFields![0].text!.count > 1{
                 self.toDoArray.append(alert.textFields![0].text!)
+                self.defaults.set(self.toDoArray, forKey: "ToDoListArray")
                 self.tableView.reloadData()
             }
         }
