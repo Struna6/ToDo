@@ -7,15 +7,16 @@
 //
 
 import UIKit
+import CoreData
 
 class TableController: UITableViewController{
 
     var toDoArray = [Item]()
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadItems()
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -51,7 +52,10 @@ class TableController: UITableViewController{
         }
         let action = UIAlertAction(title: "Add item", style: .default) { (action) in
             if alert.textFields![0].text!.count > 1{
-                self.toDoArray.append(Item(name : alert.textFields![0].text!))
+                let newItem = Item(context: self.context)
+                newItem.name = alert.textFields![0].text!
+                newItem.done = false
+                self.toDoArray.append(newItem)
                 self.saveItems()
                 self.tableView.reloadData()
             }
@@ -63,21 +67,16 @@ class TableController: UITableViewController{
     //MARK - Model Manipulation
     func saveItems(){
         do{
-            let data = try PropertyListEncoder().encode(toDoArray)
-            try data.write(to: dataFilePath!)
+            try context.save()
         } catch{
-            print("Error endocing item array")
         }
     }
     
-    func loadItems(){
-        do{
-            let data = try Data(contentsOf: dataFilePath!)
-            let decoder = PropertyListDecoder()
-            try self.toDoArray = decoder.decode([Item].self, from: data)
-        }catch{
-            print("Error loading local data!")
-        }
-    }
+//    func loadItems(){
+//        do{
+//
+//        }catch{
+//        }
+//    }
 }
 
